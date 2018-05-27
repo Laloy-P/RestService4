@@ -35,7 +35,7 @@ public class LoanApproval {
 	@POST
 	@Produces(MediaType.TEXT_HTML)
 	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-	public void loanManager(@QueryParam("id") int id, @QueryParam("amount") float amount) throws IOException {
+	public String loanManager(@QueryParam("id") int id, @QueryParam("amount") float amount) throws IOException {
 		
 		JSONObject addJson = new JSONObject();
 		addJson.put("amount", amount);
@@ -48,28 +48,31 @@ public class LoanApproval {
 
 				if (ManageData.getApprovalById(id).getResponse().equals("accepted")) {
 
-					System.out.println("credit accepté");
+					
 					ManageData.sendPutRequest( addJson.toString());
+					return "Demande de credit accepté.";
 
 				} else
-					System.out.println("credit refusé !");
+					return "Demande de credit refusé.";
 
 			} else {
 				
 				if (ManageData.getRisk(id).equals("high")) {
-					System.out.print("risque elevé : credit refus");
+					return "Demande de credit refusé.";
 
 				} else if (ManageData.getRisk(id).equals("low")) {
 
 					ManageData.sendPutRequest( addJson.toString());
+					return "Demande de credit accepté.";
 				}
 
 			}
 		} catch (Exception e) {
 
-			System.out.println("erreur 500");
+			System.out.println("Loan Approval Service did not work.");
 
 		}
+		return "echec de la demande verifier vos paramètres.";
 	}
   
 }

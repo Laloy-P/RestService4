@@ -16,6 +16,7 @@ import org.json.JSONObject;
 public class ManageData {
 
 	public static String sendPutRequest(String payload) {
+		
 		String requestUrl = "https://projet-iut.herokuapp.com";
 		try {
 			URL url = new URL(requestUrl);
@@ -36,28 +37,35 @@ public class ManageData {
 	}
 
 	public static String getRisk(int id) throws IOException {
-
-		String webService3 = "https://projet-iut-service-3.appspot.com/checkAccount?id=" + id;
-
-		URL url = new URL(webService3);
-
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-		connection.setRequestProperty("Content-Type", "text/plain; charset=utf-8");
-
-		if (connection.getResponseCode() == 200) {
-			BufferedReader bf = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			String output;
-
-			while ((output = bf.readLine()) != null) {
-
-				String risk = output;
-				System.out.println(output);
-				connection.disconnect();
-				return risk;
+		
+		try {
+			String webService3 = "https://projet-iut-service-3.appspot.com/checkAccount?id=" + id;
+	
+			URL url = new URL(webService3);
+	
+			HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+			connection.setRequestProperty("Content-Type", "text/plain; charset=utf-8");
+	
+			if (connection.getResponseCode() == 200) {
+				BufferedReader bf = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+				String output;
+	
+				while ((output = bf.readLine()) != null) {
+	
+					String risk = output;
+					System.out.println(output);
+					connection.disconnect();
+					return risk;
+				}
+	
 			}
-
+			connection.disconnect();
+			return null;
 		}
-		connection.disconnect();
+		catch (Exception ex) {
+			System.err.println(ex.getMessage());
+			
+		}
 		return null;
 
 	}
@@ -65,6 +73,7 @@ public class ManageData {
 	public static JSONObject getJsonApprovals() throws IOException {
 
 		String webService2 = "https://approvalmanagerservice.herokuapp.com/Service/ListApprovals";
+		
 
 		URL url = new URL(webService2);
 
@@ -73,16 +82,21 @@ public class ManageData {
 		connection.setRequestProperty("Accept", "application/json");
 
 		if (connection.getResponseCode() == 200) {
-			BufferedReader bf = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-			String output;
+			
+			try {
+				BufferedReader bf = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+				String output;
 
-			while ((output = bf.readLine()) != null) {
+				while ((output = bf.readLine()) != null) {
 
-				JSONObject approvals = new JSONObject(output);
-				// JSONArray approvalName = approvals.getJSONArray("approval");
-				connection.disconnect();
-				return approvals;
+					JSONObject approvals = new JSONObject(output);
+					connection.disconnect();
+					return approvals;
+				}
+			}catch (Exception ex){
+				System.out.println(ex.getMessage());
 			}
+			
 
 		}
 		connection.disconnect();
@@ -93,7 +107,15 @@ public class ManageData {
 	public static List<Approval> getApprovals() throws JSONException, IOException {
 
 		List<Approval> approvals = new ArrayList<>();
-		JSONArray json = getJsonApprovals().getJSONArray("approval");
+		JSONArray json = new JSONArray();
+		
+		try {
+			json = getJsonApprovals().getJSONArray("approval");
+		}
+		catch (Exception ex){
+			System.err.println(ex.getMessage());
+			
+		}
 
 		for (int i = 0; i < json.length(); ++i) {
 
